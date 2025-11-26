@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quality Gate BI{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: var(--primary-gradient) !important;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .score-success { background: linear-gradient(135deg, #28a745, #20c997); }
+        .score-warning { background: linear-gradient(135deg, #ffc107, #fd7e14); }
+        .score-danger { background: linear-gradient(135deg, #dc3545, #e83e8c); }
+        
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        .problem-card {
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        
+        .problem-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .problem-critique { border-left-color: #dc3545; }
+        .problem-warning { border-left-color: #ffc107; }
+        .problem-info { border-left-color: #17a2b8; }
+        
+        .tool-badge {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .tool-flake8 { background-color: #6f42c1; color: white; }
+        .tool-bandit { background-color: #e83e8c; color: white; }
+        .tool-openai { background-color: #20c997; color: white; }
+        .tool-manuel { background-color: #6c757d; color: white; }
+        
+        footer {
+            background: #343a40;
+            color: #adb5bd;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'core:home' %}">
+                <i class="bi bi-shield-check"></i> Quality Gate BI
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:home' %}">
+                            <i class="bi bi-house"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:analyser' %}">
+                            <i class="bi bi-code-square"></i> Analyser
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:historique' %}">
+                            <i class="bi bi-clock-history"></i> Historique
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">
+                            <i class="bi bi-gear"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Messages -->
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <!-- Contenu principal -->
+    <main class="container mb-5">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">
+                <i class="bi bi-shield-check"></i> Quality Gate BI v2.0
+            </p>
+            <small>
+                Powered by Flake8, Bandit & OpenAI | 
+                Projet BI - {% now "Y" %}
+            </small>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

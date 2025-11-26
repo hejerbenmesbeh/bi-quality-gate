@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - Quality Gate BI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4">
+                    <i class="bi bi-shield-check"></i> Quality Gate BI
+                </h1>
+                <p class="lead">
+                    Analysez automatiquement la qualité de votre code BI avec Flake8, Bandit et OpenAI
+                </p>
+                <a href="{% url 'core:analyser' %}" class="btn btn-light btn-lg mt-3">
+                    <i class="bi bi-play-circle"></i> Commencer une analyse
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">{{ stats.total_analyses }}</h3>
+                <p class="text-muted mb-0">Analyses totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success">{{ stats.score_moyen }}/100</h3>
+                <p class="text-muted mb-0">Score moyen</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-info">{{ stats.taux_approbation }}%</h3>
+                <p class="text-muted mb-0">Taux d'approbation</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-warning">{{ stats.total_problemes }}</h3>
+                <p class="text-muted mb-0">Problèmes détectés</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statut des outils -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-tools"></i> Statut des outils</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        {% if outils_status.flake8 %}
+                            <span class="badge bg-success p-2">
+                                <i class="bi bi-check-circle"></i> Flake8
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger p-2">
+                                <i class="bi bi-x-circle"></i> Flake8
+                            </span>
+                        {% endif %}
+                        <p class="small text-muted mt-1">Style Python</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        {% if outils_status.bandit %}
+                            <span class="badge bg-success p-2">
+                                <i class="bi bi-check-circle"></i> Bandit
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger p-2">
+                                <i class="bi bi-x-circle"></i> Bandit
+                            </span>
+                        {% endif %}
+                        <p class="small text-muted mt-1">Sécurité</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        {% if outils_status.openai %}
+                            <span class="badge bg-success p-2">
+                                <i class="bi bi-check-circle"></i> OpenAI
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning p-2">
+                                <i class="bi bi-exclamation-circle"></i> OpenAI (Simulé)
+                            </span>
+                        {% endif %}
+                        <p class="small text-muted mt-1">Analyse IA</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <span class="badge bg-success p-2">
+                            <i class="bi bi-check-circle"></i> Règles BI
+                        </span>
+                        <p class="small text-muted mt-1">Règles manuelles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dernières analyses -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Dernières analyses</h5>
+                <a href="{% url 'core:historique' %}" class="btn btn-sm btn-primary">
+                    Voir tout
+                </a>
+            </div>
+            <div class="card-body">
+                {% if dernieres_analyses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fichier</th>
+                                    <th>Outil</th>
+                                    <th>Score</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analyse in dernieres_analyses %}
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-file-code"></i>
+                                            {{ analyse.nom_fichier }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ analyse.outil }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ analyse.get_score_color }}">
+                                                {{ analyse.score }}/100
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if analyse.est_approuve %}
+                                                <span class="badge bg-success">✅ APPROUVÉ</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">❌ REJETÉ</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-muted small">
+                                            {{ analyse.date_creation|date:"d/m/Y H:i" }}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'core:resultat' analyse.pk %}" class="btn btn-sm btn-outline-primary">
+                                                Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-2">Aucune analyse pour le moment</p>
+                        <a href="{% url 'core:analyser' %}" class="btn btn-primary">
+                            Lancer votre première analyse
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

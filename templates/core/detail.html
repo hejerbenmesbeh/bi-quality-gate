@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Détails - Quality Gate BI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>{{ analyse.nom_fichier }}</h2>
+            <a href="{% url 'core:historique' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Informations -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Informations</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Fichier:</strong></td>
+                        <td>{{ analyse.nom_fichier }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Langage:</strong></td>
+                        <td><span class="badge bg-primary">{{ analyse.outil }}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date:</strong></td>
+                        <td>{{ analyse.date_creation|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Analysé par:</strong></td>
+                        <td>{{ analyse.auteur|default:"Anonyme" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Résultats</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Score:</strong></td>
+                        <td>{{ analyse.score }}/100</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Statut:</strong></td>
+                        <td>
+                            {% if analyse.est_approuve %}
+                                <span class="badge bg-success">✅ APPROUVÉ</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ REJETÉ</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Temps:</strong></td>
+                        <td>{{ analyse.temps_analyse|floatformat:2 }}s</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Code -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Code source</div>
+            <div class="card-body">
+                <pre class="code-block">{{ analyse.contenu_code }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Problèmes détaillés -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                Problèmes détectés ({{ analyse.problemes.count }})
+            </div>
+            <div class="card-body">
+                {% if analyse.problemes.exists %}
+                    {% for probleme in problemes %}
+                    <div class="problem-card problem-{{ probleme.severite }} mb-3 p-3">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <strong>{{ probleme.get_severite_icon }} {{ probleme.message }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    [{{ probleme.source|upper }}] 
+                                    {{ probleme.categorie|upper }}
+                                    {% if probleme.ligne %}
+                                        • Ligne {{ probleme.ligne }}
+                                    {% endif %}
+                                </small>
+                                {% if probleme.suggestion %}
+                                    <div class="mt-2 p-2 bg-light rounded">
+                                        💡 <strong>Suggestion:</strong> {{ probleme.suggestion }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <span class="tool-badge tool-{{ probleme.source }}">
+                                    {{ probleme.source|upper }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-success">
+                        ✅ Pas de problèmes détectés!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

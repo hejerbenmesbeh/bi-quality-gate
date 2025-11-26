@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Historique - Quality Gate BI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>Historique des analyses</h2>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Langage</label>
+                        <select name="outil" class="form-select">
+                            <option value="">Tous</option>
+                            <option value="Python" {% if outil_filter == 'Python' %}selected{% endif %}>Python</option>
+                            <option value="SQL" {% if outil_filter == 'SQL' %}selected{% endif %}>SQL</option>
+                            <option value="DAX" {% if outil_filter == 'DAX' %}selected{% endif %}>DAX</option>
+                            <option value="PowerQuery" {% if outil_filter == 'PowerQuery' %}selected{% endif %}>Power Query</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Statut</label>
+                        <select name="status" class="form-select">
+                            <option value="">Tous</option>
+                            <option value="approuve" {% if status_filter == 'approuve' %}selected{% endif %}>✅ Approuvé</option>
+                            <option value="rejete" {% if status_filter == 'rejete' %}selected{% endif %}>❌ Rejeté</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Filtrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tableau -->
+<div class="row">
+    <div class="col-12">
+        {% if analyses %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fichier</th>
+                        <th>Langage</th>
+                        <th>Score</th>
+                        <th>Statut</th>
+                        <th>Problèmes</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for analyse in analyses %}
+                    <tr>
+                        <td><strong>{{ analyse.nom_fichier }}</strong></td>
+                        <td><span class="badge bg-info">{{ analyse.outil }}</span></td>
+                        <td>
+                            <div class="score-circle" style="width: 50px; height: 50px; font-size: 1rem;">
+                                <span>{{ analyse.score }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if analyse.est_approuve %}
+                                <span class="badge bg-success">✅ Approuvé</span>
+                            {% else %}
+                                <span class="badge bg-danger">❌ Rejeté</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            🔴 {{ analyse.nb_critiques }}
+                            🟠 {{ analyse.nb_warnings }}
+                            🔵 {{ analyse.nb_infos }}
+                        </td>
+                        <td><small>{{ analyse.date_creation|date:"d/m/Y H:i" }}</small></td>
+                        <td>
+                            <a href="{% url 'core:resultat' analyse.pk %}" class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'core:supprimer' analyse.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if analyses.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if analyses.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">Première</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ analyses.previous_page_number }}">Précédente</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ analyses.number }}</span>
+                </li>
+                
+                {% if analyses.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ analyses.next_page_number }}">Suivante</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ analyses.paginator.num_pages }}">Dernière</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Aucune analyse trouvée.
+            <a href="{% url 'core:analyser' %}">Commencer une analyse</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Analyser du code - Quality Gate BI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-code-square"></i> Analyser votre code
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.nom_fichier.label }}</label>
+                        {{ form.nom_fichier }}
+                        {% if form.nom_fichier.errors %}
+                            <div class="alert alert-danger mt-1">
+                                {{ form.nom_fichier.errors }}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.nom_fichier.help_text }}</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.outil.label }}</label>
+                        {{ form.outil }}
+                        {% if form.outil.errors %}
+                            <div class="alert alert-danger mt-1">
+                                {{ form.outil.errors }}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.outil.help_text }}</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.contenu_code.label }}</label>
+                        {{ form.contenu_code }}
+                        {% if form.contenu_code.errors %}
+                            <div class="alert alert-danger mt-1">
+                                {{ form.contenu_code.errors }}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">{{ form.contenu_code.help_text }}</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        <small class="form-text text-muted">{{ form.description.help_text }}</small>
+                    </div>
+                    
+                    <!-- Options d'analyse -->
+                    <div class="card border-light mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Options d'analyse</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                {{ form.utiliser_flake8 }}
+                                <label class="form-check-label">
+                                    {{ form.utiliser_flake8.label }}
+                                </label>
+                                <small class="d-block text-muted">Vérifie le style de code Python</small>
+                            </div>
+                            
+                            <div class="form-check mt-2">
+                                {{ form.utiliser_bandit }}
+                                <label class="form-check-label">
+                                    {{ form.utiliser_bandit.label }}
+                                </label>
+                                <small class="d-block text-muted">Détecte les failles de sécurité</small>
+                            </div>
+                            
+                            <div class="form-check mt-2">
+                                {{ form.utiliser_ia }}
+                                <label class="form-check-label">
+                                    {{ form.utiliser_ia.label }}
+                                </label>
+                                <small class="d-block text-muted">
+                                    {% if outils_status.openai %}
+                                        ✅ Analyse intelligente avec OpenAI activée
+                                    {% else %}
+                                        ⚠️ Mode simulation (clé OpenAI non configurée)
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-play-circle"></i> Lancer l'analyse
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
