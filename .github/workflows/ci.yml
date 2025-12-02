@@ -1,0 +1,38 @@
+name: LLM Quality Gate
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get diff
+        run: |
+          git fetch origin main
+          git diff origin/main > diff.txt
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install static analyzers
+        run: |
+          pip install bandit flake8
+
+      - name: Run Bandit
+        run: bandit -r .
+
+      - name: Run Flake8
+        run: flake8 .
+
+      - name: Run LLM review
+        run: |
+          echo " Simulation LLM (tu peux remplacer avec ton script)"
+          echo "Score: 80"
