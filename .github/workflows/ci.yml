@@ -1,38 +1,59 @@
-name: LLM Quality Gate
+name: LLM Quality Gate CI
 
 on:
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  analyze:
+  quality-gate:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Get diff
-        run: |
-          git fetch origin main
-          git diff origin/main > diff.txt
-
-      - name: Install Python
+      # 2️⃣ Installer Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Install static analyzers
+      # 3️⃣ Installation des libs statiques (Bandit + Flake8)
+      - name: Install dependencies
         run: |
-          pip install bandit flake8
+          python -m pip install --upgrade pip
+          pip install flake8 bandit
 
+      # 4️⃣ Lancer Flake8 (style)
+      - name: Run Flake8
+        run: flake8 .
+      
+      # 5️⃣ Lancer Bandit (sécurité)
       - name: Run Bandit
         run: bandit -r .
 
-      - name: Run Flake8
-        run: flake8 .
-
-      - name: Run LLM review
+      # 6️⃣ Récupérer le diff du code modifié
+      - name: Get git diff
+        id: diff
         run: |
-          echo " Simulation LLM (tu peux remplacer avec ton script)"
-          echo "Score: 80"
+          echo "DIFF<<EOF" >> $GITHUB_OUTPUT
+          git diff origin/main -- . >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # 7️⃣ Envoyer le diff au LLM
+      - name: LLM Quality Check
+        id: llm
+        run: |
+          echo "Appel API fictif (à expliquer dans la présentation)"
+          echo "score=85" >> $GITHUB_OUTPUT  # score simulé
+      
+      # 8️⃣ Vérifier le score
+      - name: Fail if score < 70
+        run: |
+          if [ "${{ steps.llm.outputs.score }}" -lt 70 ]; then
+            echo "❌ Quality Gate failed: Score too low"
+            exit 1
+          else
+            echo "✅ Quality Gate passed"
+          fi
